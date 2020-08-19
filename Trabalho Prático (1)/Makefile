@@ -12,4 +12,4 @@ build:
 	$(CC) $(CFLAGS) src/main.cpp game.o -o $(EXEC)
 
 clean:
-	rm -rf list.o node.o
+	rm -rf game.o

@@ -32,7 +32,6 @@ bool rank_players(const pair<char, pair<int, int>> &player1, const pair<char, pa
 
 
 
-
 //Verifca se o movimento que será realizado
 //está dentro das restrições de tamanho da
 //matriz que representa o tabuleiro do jogo
