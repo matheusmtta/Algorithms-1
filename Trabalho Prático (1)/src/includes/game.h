@@ -1,5 +1,5 @@
-#ifndef GAME_BFS_TP
-#define GAME_BFS_TP
+#ifndef GAME_GAME_TP
+#define GAME_GAME_TP
 
 #include <vector>
 #include <queue>
@@ -9,8 +9,8 @@
 
 using namespace std;
 
-pair<int, int> BFS(pair<int, int>, vector<vector<int>>);
-bool compare(const pair<char, pair<int, int>>, const pair<char, pair<int, int>>);
-bool allow(int n, int m, int x, int y);
+pair<int, int> simulate_game(pair<int, int> source, vector<vector<int>> board);
+bool allow_move(int n, int m, int x, int y);
+bool rank_players(const pair<char, pair<int, int>> &player1, const pair<char, pair<int, int>> &player2);
 
 #endif
