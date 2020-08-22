@@ -2,6 +2,8 @@
 
 using namespace std;
 
+#define INF (int)0x3f3f3f3f
+
 //Haja vista que não podemos ter empates devemos ordenar
 //os potenciais vencedores de acordo com:
 //1) distância percorrida (número de saltos)
@@ -58,7 +60,7 @@ pair<int, int> simulate_game(pair<int, int> source, vector<vector<int>> board){
     //com um valor que será descartado
     //caso uma resposta válida não seja
     //encontrada
-    pair<int, int> ans = {-1, -1};
+    pair<int, int> ans = {INF, INF};
 
     //checa a existência do tabuleiro
     if (n == 0 || m == 0)
@@ -110,32 +112,10 @@ pair<int, int> simulate_game(pair<int, int> source, vector<vector<int>> board){
         //Distância percorrida até v
         int dist = distance[v_i][v_j];
 
-        //Caso a coordenada de v seja igual a {n-1, m-1}, temos
-        //nossa condição de parada
-        if (v_i == n-1 && v_j == m-1){
-            //Obtemos as coordenadas do pai de v, para ter informação
-            //acerca de sua prioridade de jogada na rodada vencedora
-            int previous_i = parent[v_i][v_j].first;
-            int previous_j = parent[v_i][v_j].second;
-
-            //Para isso precisamos de saber o valor associado ao vértice
-            //que levou o jogador até a célula anterior a célula {n-1, m-1}
-            int lst_i = parent[previous_i][previous_j].first;
-            int lst_j = parent[previous_i][previous_j].second;
-
-            //Consideramos o caso no qual o vértice anterior é
-            //o vértice inicial
-            if (lst_i == -1 && lst_j == -1)
-                return {dist, 0};
-
-            int last_jump = board[lst_i][lst_j];
-
-            //Retornamos a distância percorrida e o pulo que define
-            //a prioridade do jogador na rodada em que ele vence
-            ans = {dist, last_jump};
-
-            return ans;
-        }
+        //Caso já tivermos uma resposta melhor do que qualquer das respostas
+        //possíveis a partir desse ponto na fila, retornamos a resposta
+        //if (dist >= ans.first)
+        //    return ans;
 
         int jump = board[v_i][v_j];
 
@@ -143,14 +123,47 @@ pair<int, int> simulate_game(pair<int, int> source, vector<vector<int>> board){
 
 
         //Testamos os 4 potenciais pulos a partir da entrada {v_i, v_j},
-        //i.e, pesquisamos a adjacência de v
+        //i.e, pesquisamos a adjacência de v~u
         for (pair<int, int> u : move){
             int nx = v_i  + (jump * u.first);
             int ny = v_j  + (jump * u.second);
 
+            //Caso o vértice pesquisado for o vértice final
+            //devemos atualizar nossa resposta.
+            if (nx == n-1 && ny == m-1){    
+                int winning_distance = dist + 1;
+
+                //Seja r a rodada atual
+
+                //O valor associado a posição do jogador
+                //na no tabuleiro na rodada r-1  define
+                //a ordem da r caso haja um potencial empate
+                int previous_i = parent[v_i][v_j].first;
+                int previous_j = parent[v_i][v_j].second;
+
+                //O vértice v é o vértice inicial, logo devemos tratar
+                //separadamente
+                if (previous_i == -1 || previous_j == -1)
+                    ans = {winning_distance, 0};
+
+                int last_jump = board[previous_i][previous_j];
+
+                //Checa se esse caminho é uma resposta melhor
+                //a uma resposta já existente
+                if (winning_distance < ans.first){
+                    ans = {winning_distance, last_jump};
+                }
+
+                //Caso existam dois ou mais caminhos de mesma distância
+                //queremos aquele que dê maior prioridade ao jogador na
+                //rodada r
+                if (winning_distance == ans.first){
+                    ans = {winning_distance, min(last_jump, ans.second)};
+                }
+            }
             //checa se é possível saltar para o vértice {nx, ny} e se
             //{nx, ny} ainda não foi visitado.
-            if (allow_move(n, m, nx, ny) && visited[nx][ny] == false){
+            else if (allow_move(n, m, nx, ny) && visited[nx][ny] == false){
                 visited[nx][ny] = true;
                 distance[nx][ny] = dist + 1;
                 q.push({nx, ny});

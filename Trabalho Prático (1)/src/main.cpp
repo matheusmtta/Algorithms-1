@@ -1,5 +1,7 @@
 #include "includes/game.h"
 
+#define INF (int)0x3f3f3f3f
+
 using namespace std;
 
 int main(){
@@ -8,6 +10,8 @@ int main(){
     int N, M; 
 
     cin >> N >> M;
+
+    cout << N << " " << M << endl;
 
     //Checamos a validade da entrada
     if (N <= 0 || M <= 0) 
@@ -44,8 +48,8 @@ int main(){
     	//Simulamos o processo do jogo para cada jogador
         pair <int, int> source = players[i].second;
         pair <int, int> result = simulate_game(source, board);
-        if (result.first != -1 && result.second != -1){
-        	//Caso o resultado seja válido, i.e, result != {-1, -1}
+        if (result.first != INF && result.second != INF){
+        	//Caso o resultado seja válido, i.e, result != {INF, INF}
         	//adicionamos a resposta ao vetor de vencedores
             winners.push_back({players[i].first, result});
         }
