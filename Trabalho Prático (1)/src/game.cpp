@@ -130,8 +130,9 @@ pair<int, int> simulate_game(pair<int, int> source, vector<vector<int>> board){
 
             //Caso o vértice pesquisado for o vértice final
             //devemos atualizar nossa resposta.
-            if (nx == n-1 && ny == m-1)
+            if (nx == n-1 && ny == m-1){
                 winning_pred.push_back({v_i, v_j});
+            }
             //checa se é possível saltar para o vértice {nx, ny} e se
             //{nx, ny} ainda não foi visitado.
             else if (allow_move(n, m, nx, ny)){
@@ -150,7 +151,7 @@ pair<int, int> simulate_game(pair<int, int> source, vector<vector<int>> board){
                     int parent_j = parent[nx][ny].second;
                     if (parent_i == -1 && parent_j == -1)
                         continue; 
-                    if (distance[nx][ny] > dist + 1 || (distance[nx][ny] <= dist + 1 && board[parent_i][parent_j] > board[v_i][v_j])){
+                    if (distance[nx][ny] > dist + 1 || (distance[nx][ny] == dist + 1 && board[parent_i][parent_j] > board[v_i][v_j])){
                         distance[nx][ny] = dist + 1;
                         parent[nx][ny] = {v_i, v_j};
                     }
