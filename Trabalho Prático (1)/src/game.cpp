@@ -97,6 +97,7 @@ pair<int, int> simulate_game(pair<int, int> source, vector<vector<int>> board){
         return ans;
     }
 
+    vector <pair<int, int>> winning_pred;
 
     //Enquanto houver algum vértice descoberto, com a adjacência
     //ainda não pesquisada
@@ -121,7 +122,6 @@ pair<int, int> simulate_game(pair<int, int> source, vector<vector<int>> board){
 
         if (jump == 0) continue;
 
-
         //Testamos os 4 potenciais pulos a partir da entrada {v_i, v_j},
         //i.e, pesquisamos a adjacência de v~u
         for (pair<int, int> u : move){
@@ -130,49 +130,70 @@ pair<int, int> simulate_game(pair<int, int> source, vector<vector<int>> board){
 
             //Caso o vértice pesquisado for o vértice final
             //devemos atualizar nossa resposta.
-            if (nx == n-1 && ny == m-1){    
-                int winning_distance = dist + 1;
-
-                //Seja r a rodada atual
-
-                //O valor associado a posição do jogador
-                //na no tabuleiro na rodada r-1  define
-                //a ordem da r caso haja um potencial empate
-                int previous_i = parent[v_i][v_j].first;
-                int previous_j = parent[v_i][v_j].second;
-
-                //O vértice v é o vértice inicial, logo devemos tratar
-                //separadamente
-                if (previous_i == -1 || previous_j == -1)
-                    ans = {winning_distance, 0};
-
-                int last_jump = board[previous_i][previous_j];
-
-                //Checa se esse caminho é uma resposta melhor
-                //a uma resposta já existente
-                if (winning_distance < ans.first){
-                    ans = {winning_distance, last_jump};
-                }
-
-                //Caso existam dois ou mais caminhos de mesma distância
-                //queremos aquele que dê maior prioridade ao jogador na
-                //rodada r
-                if (winning_distance == ans.first){
-                    ans = {winning_distance, min(last_jump, ans.second)};
-                }
-            }
+            if (nx == n-1 && ny == m-1)
+                winning_pred.push_back({v_i, v_j});
             //checa se é possível saltar para o vértice {nx, ny} e se
             //{nx, ny} ainda não foi visitado.
-            else if (allow_move(n, m, nx, ny) && visited[nx][ny] == false){
-                visited[nx][ny] = true;
-                distance[nx][ny] = dist + 1;
-                q.push({nx, ny});
-                parent[nx][ny] = {v_i, v_j};
+            else if (allow_move(n, m, nx, ny)){
+                if (visited[nx][ny] == false){
+                    visited[nx][ny] = true;
+                    distance[nx][ny] = dist + 1;
+                    q.push({nx, ny});
+                    parent[nx][ny] = {v_i, v_j};
+                }
+                //Para desempatarmos precisamos do predecessor de
+                //peso mínimo do vértice {n-1, m-1}, então mantemos
+                //para cada célula da matriz o menor peso possível. 
+                //mas não pesquisamos a adjacência novamente.
+                else {
+                    int parent_i = parent[nx][ny].first;
+                    int parent_j = parent[nx][ny].second;
+                    if (parent_i == -1 && parent_j == -1)
+                        continue; 
+                    if (distance[nx][ny] > dist + 1 || (distance[nx][ny] <= dist + 1 && board[parent_i][parent_j] > board[v_i][v_j])){
+                        distance[nx][ny] = dist + 1;
+                        parent[nx][ny] = {v_i, v_j};
+                    }
+                }
             }
         }
     }
 
     //Não há mais vértices para serem pesquisados,
-    //o jogador não alcança o vértice {n-1, m-1}
+    //logo precisamos extrair o vértice predecessor
+    //ao vértice final {n-1, m-1} de menor peso
+    for (int i = 0; i < (int)winning_pred.size(); i++){
+        int v_i = winning_pred[i].first;
+        int v_j = winning_pred[i].second;
+
+        int previous_i = parent[v_i][v_j].first;
+        int previous_j = parent[v_i][v_j].second;
+        
+        //Definimos a distancia vencedora como a distância
+        //até o vértice predecessor ao vencedor + 1, i.e,
+        //o pulo necessário para vencer
+        int winning_distance = distance[v_i][v_j]+1;
+
+        //O vértice predecessor ao vértice {n-1, m-1}
+        //é o vértice inicial
+        if (previous_i == -1 || previous_j == -1){
+            ans = {winning_distance, 0};
+            break;
+        }
+
+        int last_jump = board[previous_i][previous_j];
+
+        //A distância menor sempre possui prioridade
+        if (winning_distance < ans.first)
+            ans = {winning_distance, last_jump};
+        //Caso existam duas respostas de mesma distância
+        //escolhemos aquela com o menor pulo associado ao
+        //vértice predecessor
+        else if (winning_distance == ans.first)
+            ans = {winning_distance, min(last_jump, ans.second)};
+    }
+
+    //Retornamos o valor de peso mínimo {dist, last_jump}
+    //caso seja impossível, {INF, INF}
     return ans;
 }

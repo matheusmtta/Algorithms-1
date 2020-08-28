@@ -11,8 +11,6 @@ int main(){
 
     cin >> N >> M;
 
-    cout << N << " " << M << endl;
-
     //Checamos a validade da entrada
     if (N <= 0 || M <= 0) 
     	exit(0);
