@@ -4,12 +4,19 @@
 
 using namespace std;
 
-int main(){
+int main(int argc, char* argv[]){
 	//Recebemos os valores de entrada e definimos
 	//a matriz/grafo que será usada como tabuleiro
+    if (argc <= 1)
+        exit(0);
+
+    ifstream input;
+    input.open(argv[1]);
+
     int N, M; 
 
-    cin >> N >> M;
+    input >> N >> M;
+    //cin >> N >> M;
 
     //Checamos a validade da entrada
     if (N <= 0 || M <= 0) 
@@ -22,11 +29,12 @@ int main(){
 
     int P; 
 
-    cin >> P;
+    input >> P;
 
     for (int i = 0; i < N; i++)
         for (int j = 0; j < M; j++)
-            cin >> board[i][j];
+            input >> board[i][j];
+            //cin >> board[i][j];
 
     //Inicializamos a tag para o primeiro jogador
     //como A, e associamos a cada um deles uma tag
@@ -35,7 +43,7 @@ int main(){
     char tag = 'A';
 
     for (int i = 0; i < P; i++, tag++){
-        int x, y; cin >> x >> y;
+        int x, y; input >> x >> y;
         players.push_back({tag, {x, y}});
     }
 
