@@ -1,0 +1,4 @@
+for i in {1..256..10}; do
+	echo -n "$i;"
+	./input_gen $i | /usr/bin/time -f %U ../../tp1 > /dev/null
+done &> time_results.csv
